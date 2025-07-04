@@ -1,33 +1,111 @@
 <!DOCTYPE html>
 <html lang="tr">
-<head><meta charset="UTF-8" /><title>GitHub API Test</title></head>
+<head>
+  <meta charset="UTF-8" />
+  <title>GitHub Kayıt Sistemi</title>
+</head>
 <body>
-<h2>Dosya Çek Test</h2>
-<button id="btn">Dosyayı Çek</button>
-<script>
-const token = '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';
-const owner = 'gbshock-byte';
-const repo = 'GirisSistem';
-const path = 'abcsa.json';
 
-document.getElementById('btn').addEventListener('click', () => {
-  fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
-    headers: {
-      Authorization: 'Bearer ' + token,
-      'User-Agent': 'Mozilla/5.0'
+<h2>Kayıt Ol</h2>
+<form id="registerForm">
+  <label>Kullanıcı Adı: <input type="text" id="username" required></label><br><br>
+  <label>Şifre: <input type="password" id="password" required></label><br><br>
+  <button type="submit">Kayıt Ol</button>
+</form>
+
+<script>
+  // 🔒 Token burada — dikkat: public HTML'de açık olması tehlikelidir
+  const token = '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';
+
+  const owner = 'gbshock-byte';
+  const repo = 'GirisSistem';
+  const path = 'abcsa.json';
+
+  async function sha256(message) {
+    const msgBuffer = new TextEncoder().encode(message);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  async function getFile() {
+    const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+    const res = await fetch(url, {
+      headers: {
+        Authorization: 'Bearer ' + token,
+        'User-Agent': 'Mozilla/5.0'
+      }
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error('Dosya çekilemedi! ' + res.status + ' - ' + text);
     }
-  })
-  .then(res => {
-    if (!res.ok) throw new Error('Dosya çekilemedi: ' + res.status);
+
     return res.json();
-  })
-  .then(data => {
-    const content = atob(data.content.replace(/\n/g, ''));
-    console.log('Dosya içeriği:', content);
-    alert('Dosya içeriği konsola yazıldı.');
-  })
-  .catch(err => alert(err.message));
-});
+  }
+
+  async function updateFile(contentBase64, sha, message) {
+    const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+    const res = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        Authorization: 'Bearer ' + token,
+        'Content-Type': 'application/json',
+        'User-Agent': 'Mozilla/5.0'
+      },
+      body: JSON.stringify({
+        message: message,
+        content: contentBase64,
+        sha: sha
+      })
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error('Dosya güncellenemedi! ' + res.status + ' - ' + text);
+    }
+
+    return res.json();
+  }
+
+  document.getElementById('registerForm').addEventListener('submit', async e => {
+    e.preventDefault();
+
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+
+    if (!username || !password) {
+      alert('Lütfen kullanıcı adı ve şifreyi doldurun.');
+      return;
+    }
+
+    try {
+      const passwordHash = await sha256(password);
+      const fileData = await getFile();
+
+      const jsonText = atob(fileData.content.replace(/\n/g, ''));
+      const users = JSON.parse(jsonText);
+
+      if (users[username]) {
+        alert('Bu kullanıcı zaten var!');
+        return;
+      }
+
+      users[username] = passwordHash;
+
+      const updatedContent = btoa(JSON.stringify(users, null, 2));
+      await updateFile(updatedContent, fileData.sha, `Add user ${username}`);
+
+      alert('Kayıt başarıyla yapıldı!');
+      document.getElementById('registerForm').reset();
+
+    } catch (err) {
+      alert('Hata: ' + err.message);
+      console.error(err);
+    }
+  });
 </script>
+
 </body>
 </html>
