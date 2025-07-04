@@ -2,56 +2,96 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <title>Kayıt Formu</title>
+  <title>GitHub Kayıt Formu</title>
 </head>
 <body>
-  <h2>Kayıt Ol</h2>
-  <form id="registerForm">
-    <label for="username">Kullanıcı Adı:</label><br/>
-    <input type="text" id="username" required /><br/><br/>
-    <label for="password">Şifre:</label><br/>
-    <input type="password" id="password" required /><br/><br/>
-    <button type="submit">Kayıt Ol</button>
-  </form>
 
-  <script>
-    async function sha256(message) {
-      const msgBuffer = new TextEncoder().encode(message);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-      return hashHex;
+<h2>Kayıt Ol</h2>
+<form id="registerForm">
+  <label>Kullanıcı Adı: <input type="text" id="username" required></label><br><br>
+  <label>Şifre: <input type="password" id="password" required></label><br><br>
+  <button type="submit">Kayıt Ol</button>
+</form>
+
+<script>
+  // Buraya kendi GitHub Personal Access Token'ını koy
+  const token = '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';
+
+  // Repo bilgileri
+  const owner = 'gbshock-byte';
+  const repo = 'GirisSistem';
+  const path = 'abcsa.json';
+
+  async function sha256(message) {
+    const msgBuffer = new TextEncoder().encode(message);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  async function getFile() {
+    const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+      headers: { Authorization: `Bearer ${token}`, 'User-Agent': 'Mozilla/5.0' }
+    });
+    if (!res.ok) throw new Error('Dosya çekilemedi: ' + res.status);
+    return res.json();
+  }
+
+  async function updateFile(contentBase64, sha, message) {
+    const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'User-Agent': 'Mozilla/5.0'
+      },
+      body: JSON.stringify({
+        message: message,
+        content: contentBase64,
+        sha: sha
+      })
+    });
+    if (!res.ok) throw new Error('Dosya güncellenemedi: ' + res.status);
+    return res.json();
+  }
+
+  document.getElementById('registerForm').addEventListener('submit', async e => {
+    e.preventDefault();
+
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+
+    if (!username || !password) {
+      alert('Lütfen tüm alanları doldurun.');
+      return;
     }
 
-    document.getElementById('registerForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value;
+    try {
+      const passwordHash = await sha256(password);
 
-      if (!username || !password) {
-        alert('Lütfen tüm alanları doldurun.');
+      const fileData = await getFile();
+      const content = atob(fileData.content.replace(/\n/g, ''));
+      const users = JSON.parse(content);
+
+      if (users[username]) {
+        alert('Bu kullanıcı zaten mevcut!');
         return;
       }
 
-      const passwordHash = await sha256(password);
+      users[username] = passwordHash;
 
-      const userData = {
-        username: username,
-        passwordHash: passwordHash
-      };
+      const updatedContent = btoa(JSON.stringify(users, null, 2));
 
-      // Kullanıcıyı ekranda göster
-      alert(`Kayıt bilgileri:\n${JSON.stringify(userData, null, 2)}`);
+      await updateFile(updatedContent, fileData.sha, `Add user ${username}`);
 
-      // JSON dosyası olarak indir (isteğe bağlı)
-      const blob = new Blob([JSON.stringify(userData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${username}_kayd.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-    });
-  </script>
+      alert('Kayıt başarılı!');
+      document.getElementById('registerForm').reset();
+
+    } catch (err) {
+      alert('Hata: ' + err.message);
+    }
+  });
+</script>
+
 </body>
 </html>
