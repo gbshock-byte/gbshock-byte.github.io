@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <title>GitHub Kayıt Formu</title>
+  <title>GitHub Kayıty Formu</title>
 </head>
 <body>
 
@@ -14,13 +14,13 @@
 </form>
 
 <script>
-  // Buraya kendi GitHub Personal Access Token'ını koy
+  // GitHub Personal Access Token’ını buraya koy
   const token = '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';
 
   // Repo bilgileri
   const owner = 'gbshock-byte';
   const repo = 'GirisSistem';
-  const path = 'abcsa.json';
+  const path = 'abcsa.json';  // Güncel dosya adı
 
   async function sha256(message) {
     const msgBuffer = new TextEncoder().encode(message);
