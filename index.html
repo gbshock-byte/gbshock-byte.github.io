@@ -1,0 +1,19 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GitHub Giriş Sistemi</title>
+</head>
+<body>
+    <h1>Temizlik Programı Giriş</h1>
+    <button onclick="githubLogin()">GitHub ile Giriş Yap</button>
+
+    <script>
+        function githubLogin() {
+            const clientId = "YOUR_CLIENT_ID"; // GitHub'dan aldığın Client ID
+            const redirectUri = encodeURIComponent("https://[kullanıcı-adı].github.io/[repo-adı]/auth.html"); // Callback URL
+            window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=user`;
+        }
+    </script>
+</body>
+</html>
