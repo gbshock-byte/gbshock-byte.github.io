@@ -7,12 +7,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary: #6c5ce7;
-            --secondary: #a29bfe;
+            --primary: #64aaf4;
+            --secondary: #7ab8ff;
             --dark: #2d3436;
             --light: #f5f6fa;
             --accent: #00b894;
             --ai-color: #ff9ff3;
+            --bg-start: rgba(100, 170, 250, 0.9);
+            --bg-end: rgba(70, 120, 200, 0.9);
         }
         
         * {
@@ -23,7 +25,7 @@
         }
         
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
             color: var(--light);
             min-height: 100vh;
             display: flex;
@@ -56,7 +58,7 @@
         h1 {
             font-size: 3rem;
             margin-bottom: 1rem;
-            background: linear-gradient(to right, #fff, #a29bfe);
+            background: linear-gradient(to right, #fff, #c2e0ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -127,18 +129,20 @@
         }
         
         .feature-card {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(10px);
             border-radius: 15px;
             padding: 2rem;
             width: 300px;
             transition: transform 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
         
         .feature-card:hover {
             transform: translateY(-10px);
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
         }
         
         .feature-icon {
@@ -153,11 +157,13 @@
         .feature-title {
             font-size: 1.3rem;
             margin-bottom: 1rem;
+            color: white;
         }
         
         .feature-desc {
-            opacity: 0.8;
+            opacity: 0.9;
             line-height: 1.6;
+            color: white;
         }
         
         .social-links {
@@ -171,23 +177,33 @@
             color: white;
             font-size: 1.5rem;
             transition: transform 0.3s ease;
+            background: rgba(255, 255, 255, 0.2);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .social-link:hover {
             transform: scale(1.2);
+            background: rgba(255, 255, 255, 0.3);
             color: var(--accent);
         }
         
         footer {
             text-align: center;
             padding: 2rem;
-            background: rgba(0, 0, 0, 0.2);
+            background: rgba(0, 0, 0, 0.15);
             margin-top: auto;
+            backdrop-filter: blur(5px);
         }
         
         .copyright {
-            opacity: 0.7;
+            opacity: 0.8;
             font-size: 0.9rem;
+            color: white;
         }
         
         @keyframes fadeIn {
@@ -297,11 +313,11 @@
         </div>
         
         <div id="download" style="text-align: center; margin-top: 2rem;">
-            <h2 style="margin-bottom: 1.5rem;">Hemen İndirin ve Yapay Zeka Destekli Temizliği Deneyin!</h2>
+            <h2 style="margin-bottom: 1.5rem; color: white;">Hemen İndirin ve Yapay Zeka Destekli Temizliği Deneyin!</h2>
             <a href="#" class="download-btn">
                 <i class="fas fa-download"></i> Beta Sürümünü İndir (v0.9.2)
             </a>
-            <p style="margin-top: 1rem; opacity: 0.8;">
+            <p style="margin-top: 1rem; opacity: 0.9; color: white;">
                 Windows 10/11 ile uyumludur. (64-bit) | Yapay Zeka özellikleri internet bağlantısı gerektirir.
             </p>
         </div>
